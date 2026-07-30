@@ -1,0 +1,923 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>雅思单词本</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    min-height: 100vh;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+    overflow: hidden;
+  }
+  .header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: #fff;
+    padding: 24px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; }
+  .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+  .btn {
+    padding: 8px 16px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: #fff; color: #667eea; }
+  .btn-primary:hover { background: #f0f0f0; }
+  .btn-secondary { background: rgba(255,255,255,0.2); color: #fff; }
+  .btn-secondary:hover { background: rgba(255,255,255,0.3); }
+  .btn-danger { background: #ff4757; color: #fff; }
+  .btn-danger:hover { background: #ff6b81; }
+  .btn-success { background: #2ed573; color: #fff; }
+  .btn-success:hover { background: #26de81; }
+
+  .toolbar {
+    padding: 16px 28px;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .toolbar input[type="text"] {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+    transition: border-color 0.2s;
+  }
+  .toolbar input[type="text"]:focus {
+    outline: none;
+    border-color: #667eea;
+  }
+  .toolbar select {
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 14px;
+    background: #fff;
+  }
+
+  .input-area {
+    padding: 16px 28px;
+    border-bottom: 1px solid #f0f0f0;
+    display: none;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .input-area.active { display: flex; }
+  .input-area input, .input-area textarea {
+    flex: 1;
+    min-width: 200px;
+    padding: 10px 14px;
+    border: 2px solid #e0e0e0;
+    border-radius: 8px;
+    font-size: 15px;
+  }
+  .input-area textarea { min-height: 80px; resize: vertical; }
+
+  .ai-area {
+    padding: 16px 28px;
+    border-bottom: 1px solid #f0f0f0;
+    display: none;
+    gap: 10px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .ai-area.active { display: flex; }
+  .ai-area label {
+    cursor: pointer;
+    padding: 10px 16px;
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+  }
+  .ai-area input[type="file"] { display: none; }
+  .ai-preview {
+    max-width: 120px;
+    max-height: 80px;
+    border-radius: 8px;
+    display: none;
+  }
+  .ai-loading {
+    display: none;
+    color: #667eea;
+    font-size: 14px;
+  }
+
+  .stats {
+    padding: 12px 28px;
+    background: #f8f9fa;
+    display: flex;
+    gap: 20px;
+    font-size: 13px;
+    color: #666;
+  }
+  .stats span { font-weight: 600; color: #667eea; }
+
+  .word-list {
+    padding: 8px 0;
+    max-height: 60vh;
+    overflow-y: auto;
+  }
+  .word-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 28px;
+    border-bottom: 1px solid #f5f5f5;
+    transition: background 0.15s;
+    gap: 12px;
+  }
+  .word-item:hover { background: #f8f9fa; }
+  .word-item .word-text {
+    flex: 1;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+  }
+  .word-item .word-phonetic {
+    color: #888;
+    font-size: 13px;
+    margin-left: 8px;
+  }
+  .word-item .word-chinese {
+    color: #555;
+    font-size: 14px;
+    flex: 2;
+  }
+  .word-item .word-actions {
+    display: flex;
+    gap: 6px;
+  }
+  .word-item .word-actions button {
+    padding: 4px 10px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 12px;
+  }
+  .btn-play { background: #667eea; color: #fff; }
+  .btn-mastered { background: #2ed573; color: #fff; }
+  .btn-wrong { background: #ffa502; color: #fff; }
+  .btn-delete { background: #ff4757; color: #fff; }
+
+  .empty-state {
+    padding: 60px 28px;
+    text-align: center;
+    color: #999;
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state p { font-size: 15px; }
+
+  /* 复习模式 */
+  .review-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(0,0,0,0.6);
+    z-index: 100;
+    justify-content: center;
+    align-items: center;
+  }
+  .review-overlay.active { display: flex; }
+  .review-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 40px;
+    max-width: 500px;
+    width: 90%;
+    text-align: center;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .review-card .word-display {
+    font-size: 32px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 12px;
+  }
+  .review-card .phonetic {
+    font-size: 18px;
+    color: #888;
+    margin-bottom: 20px;
+  }
+  .review-card .answer {
+    font-size: 20px;
+    color: #667eea;
+    margin: 20px 0;
+    min-height: 28px;
+  }
+  .review-card .actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .review-progress {
+    margin-top: 16px;
+    font-size: 13px;
+    color: #999;
+  }
+
+  /* Toast */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%) translateY(100px);
+    background: #333;
+    color: #fff;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s;
+    z-index: 200;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .tab-bar {
+    display: flex;
+    border-bottom: 2px solid #f0f0f0;
+    padding: 0 28px;
+  }
+  .tab-bar button {
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    font-size: 14px;
+    font-weight: 500;
+    color: #999;
+    cursor: pointer;
+    border-bottom: 2px solid transparent;
+    margin-bottom: -2px;
+  }
+  .tab-bar button.active {
+    color: #667eea;
+    border-bottom-color: #667eea;
+  }
+
+  .wrong-list .word-item .word-text { color: #ff4757; }
+
+  @media (max-width: 600px) {
+    .header { padding: 16px 18px; }
+    .toolbar, .input-area, .ai-area, .stats { padding-left: 18px; padding-right: 18px; }
+    .word-item { padding: 10px 18px; flex-wrap: wrap; }
+    .word-item .word-chinese { flex-basis: 100%; margin-top: 4px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1>📚 雅思单词本</h1>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="showSingleInput()">＋ 单个</button>
+      <button class="btn btn-secondary" onclick="showBatchInput()">📝 批量</button>
+      <button class="btn btn-secondary" onclick="showAIInput()">📷 AI识图</button>
+      <button class="btn btn-primary" onclick="startSpellingReview()">✏️ 拼写</button>
+      <button class="btn btn-primary" onclick="startListeningReview()">👂 听力</button>
+      <button class="btn btn-danger" onclick="confirmClearAll()">🗑️ 清空</button>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <input type="text" id="searchInput" placeholder="🔍 搜索单词或中文..." oninput="filterWords()">
+    <select id="filterSelect" onchange="filterWords()">
+      <option value="all">全部单词</option>
+      <option value="mastered">已掌握</option>
+      <option value="learning">学习中</option>
+      <option value="wrong">错词本</option>
+    </select>
+    <button class="btn btn-success" onclick="exportWords()">📤 导出</button>
+    <label class="btn btn-secondary" for="importFile" style="cursor:pointer;padding:8px 16px;border-radius:8px;font-size:14px;">📥 导入</label>
+    <input type="file" id="importFile" accept=".json" onchange="importWords(event)" style="display:none">
+  </div>
+
+  <div class="input-area" id="singleInput">
+    <input type="text" id="singleWord" placeholder="输入英文单词，回车确认">
+    <button class="btn btn-primary" onclick="addSingleWord()">添加</button>
+  </div>
+
+  <div class="input-area" id="batchInput">
+    <textarea id="batchWords" placeholder="一行一个单词，或英文,中文 格式&#10;如：&#10;comprehensive,adj. 综合性的&#10;accommodation,n. 住宿"></textarea>
+    <button class="btn btn-primary" onclick="addBatchWords()">批量添加</button>
+  </div>
+
+  <div class="ai-area" id="aiInput">
+    <label for="aiImageInput">📷 选择图片</label>
+    <input type="file" id="aiImageInput" accept="image/*" onchange="handleAIImage(event)">
+    <img id="aiPreview" class="ai-preview">
+    <span class="ai-loading" id="aiLoading">🔍 AI 识别中...</span>
+  </div>
+
+  <div class="stats">
+    <div>总单词：<span id="totalCount">0</span></div>
+    <div>已掌握：<span id="masteredCount">0</span></div>
+    <div>学习中：<span id="learningCount">0</span></div>
+    <div>错词：<span id="wrongCount">0</span></div>
+  </div>
+
+  <div class="tab-bar">
+    <button class="active" onclick="switchTab('all', this)">全部</button>
+    <button onclick="switchTab('wrong', this)">错词本</button>
+  </div>
+
+  <div class="word-list" id="wordList"></div>
+</div>
+
+<!-- 拼写复习弹窗 -->
+<div class="review-overlay" id="spellingOverlay">
+  <div class="review-card">
+    <div class="word-display" id="spellingQuestion"></div>
+    <div class="phonetic" id="spellingPhonetic"></div>
+    <input type="text" id="spellingAnswer" placeholder="输入英文单词..." style="width:100%;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:16px;text-align:center;" onkeydown="if(event.key==='Enter')checkSpelling()">
+    <div class="answer" id="spellingResult"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="checkSpelling()">确认</button>
+      <button class="btn btn-secondary" onclick="nextSpelling()" style="background:#f0f0f0;color:#333;">跳过</button>
+      <button class="btn btn-danger" onclick="closeSpelling()">退出</button>
+    </div>
+    <div class="review-progress" id="spellingProgress"></div>
+  </div>
+</div>
+
+<!-- 听力复习弹窗 -->
+<div class="review-overlay" id="listeningOverlay">
+  <div class="review-card">
+    <div class="word-display" id="listeningQuestion"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="playListeningWord()">🔊 播放发音</button>
+      <button class="btn btn-primary" onclick="showListeningAnswer()">显示答案</button>
+      <button class="btn btn-danger" onclick="closeListening()">退出</button>
+    </div>
+    <div class="answer" id="listeningResult"></div>
+    <div class="review-progress" id="listeningProgress"></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ========== 配置 ==========
+const API_BASE = '/api/words';
+const AI_API = '/api/ai';
+const APP_ID_KEY = 'vocab_app_id';
+
+// ========== 全局状态 ==========
+let words = [];
+let currentTab = 'all';
+let wrongWords = []; // 错词本
+
+// ========== 初始化 ==========
+async function init() {
+  let appId = localStorage.getItem(APP_ID_KEY);
+  if (!appId) {
+    await createApp();
+  } else {
+    await loadFromCloud();
+  }
+  renderList();
+  updateStats();
+}
+
+async function createApp() {
+  try {
+    const resp = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'create' })
+    });
+    const data = await resp.json();
+    if (data.appId) {
+      localStorage.setItem(APP_ID_KEY, data.appId);
+      words = [];
+      await saveToCloud();
+      showToast('✅ 已创建新单词本');
+    }
+  } catch (e) {
+    showToast('❌ 创建失败：' + e.message);
+  }
+}
+
+async function loadFromCloud() {
+  try {
+    const appId = localStorage.getItem(APP_ID_KEY);
+    const resp = await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'read', appId })
+    });
+    const data = await resp.json();
+    words = data.words || [];
+  } catch (e) {
+    showToast('⚠️ 加载失败，使用本地缓存');
+    words = JSON.parse(localStorage.getItem('vocab_local') || '[]');
+  }
+}
+
+async function saveToCloud() {
+  try {
+    const appId = localStorage.getItem(APP_ID_KEY);
+    await fetch(API_BASE, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'write', appId, data: { words } })
+    });
+    localStorage.setItem('vocab_local', JSON.stringify(words));
+  } catch (e) {
+    localStorage.setItem('vocab_local', JSON.stringify(words));
+  }
+}
+
+// ========== 单词查询（免费 API）==========
+async function lookupWord(word) {
+  try {
+    const resp = await fetch(`https://api.dictionaryapi.dev/api/v2/entries/en/${encodeURIComponent(word)}`);
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    const entry = data[0];
+    const phonetic = entry.phonetic || entry.phonetics?.[0]?.text || '';
+    const meanings = entry.meanings || [];
+    const defs = meanings.map(m => `${m.partOfSpeech} ${m.definitions[0]?.definition || ''}`).filter(Boolean);
+    return { phonetic, definitions: defs };
+  } catch {
+    return null;
+  }
+}
+
+// 有道词典免费接口（中文释义）
+async function lookupChinese(word) {
+  try {
+    const resp = await fetch(`https://dict.youdao.com/suggest?q=${encodeURIComponent(word)}&le=eng&num=1`);
+    const text = await resp.text();
+    // 简单解析
+    const match = text.match(/"explain":"([^"]+)"/);
+    if (match) return match[1];
+    return '';
+  } catch {
+    return '';
+  }
+}
+
+// ========== 添加单词 ==========
+async function addSingleWord() {
+  const input = document.getElementById('singleWord');
+  const word = input.value.trim().toLowerCase();
+  if (!word) return;
+  if (words.some(w => w.word === word)) {
+    showToast('⚠️ 单词已存在');
+    input.value = '';
+    return;
+  }
+  input.value = '';
+  input.placeholder = '🔍 查询中...';
+  const [info, chinese] = await Promise.all([lookupWord(word), lookupChinese(word)]);
+  const newWord = {
+    word,
+    phonetic: info?.phonetic || '',
+    chinese: chinese || (info?.definitions?.[0] || ''),
+    definitions: info?.definitions || [],
+    mastered: false,
+    wrongCount: 0,
+    createdAt: Date.now()
+  };
+  words.push(newWord);
+  await saveToCloud();
+  renderList();
+  updateStats();
+  input.placeholder = '输入英文单词，回车确认';
+  showToast(`✅ 已添加：${word}`);
+  // 播放发音
+  playWord(word);
+}
+
+async function addBatchWords() {
+  const textarea = document.getElementById('batchWords');
+  const text = textarea.value.trim();
+  if (!text) return;
+  const lines = text.split('\n').map(l => l.trim()).filter(Boolean);
+  let added = 0;
+  for (const line of lines) {
+    const parts = line.split(/[,，]/).map(s => s.trim());
+    const word = parts[0].toLowerCase();
+    if (!word || words.some(w => w.word === word)) continue;
+    let chinese = parts[1] || '';
+    if (!chinese) {
+      const info = await lookupWord(word);
+      chinese = info?.definitions?.[0] || '';
+    }
+    words.push({
+      word,
+      phonetic: '',
+      chinese,
+      definitions: [],
+      mastered: false,
+      wrongCount: 0,
+      createdAt: Date.now()
+    });
+    added++;
+    if (added % 5 === 0) {
+      await saveToCloud();
+      renderList();
+    }
+  }
+  textarea.value = '';
+  textarea.placeholder = '一行一个单词，或英文,中文 格式';
+  await saveToCloud();
+  renderList();
+  updateStats();
+  showToast(`✅ 批量添加 ${added} 个单词`);
+}
+
+// ========== AI 识图 ==========
+async function handleAIImage(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    const base64 = reader.result;
+    document.getElementById('aiPreview').src = base64;
+    document.getElementById('aiPreview').style.display = 'block';
+    document.getElementById('aiLoading').style.display = 'inline';
+    try {
+      const resp = await fetch(AI_API, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ image: base64 })
+      });
+      const data = await resp.json();
+      if (data.result) {
+        const lines = data.result.split('\n').map(l => l.trim().toLowerCase()).filter(Boolean);
+        let added = 0;
+        for (const w of lines) {
+          if (words.some(ex => ex.word === w)) continue;
+          const info = await lookupWord(w);
+          words.push({
+            word: w,
+            phonetic: info?.phonetic || '',
+            chinese: info?.definitions?.[0] || '',
+            definitions: info?.definitions || [],
+            mastered: false,
+            wrongCount: 0,
+            createdAt: Date.now(),
+            fromAI: true
+          });
+          added++;
+        }
+        await saveToCloud();
+        renderList();
+        updateStats();
+        showToast(`📷 AI 识别添加 ${added} 个单词`);
+      } else {
+        showToast('❌ AI 识别失败：' + (data.error || '未知错误'));
+      }
+    } catch (e) {
+      showToast('❌ AI 调用失败：' + e.message);
+    } finally {
+      document.getElementById('aiLoading').style.display = 'none';
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+// ========== 渲染 ==========
+function renderList() {
+  const list = document.getElementById('wordList');
+  let displayWords = words;
+  const filter = document.getElementById('filterSelect').value;
+  const search = document.getElementById('searchInput').value.trim().toLowerCase();
+
+  if (currentTab === 'wrong') {
+    displayWords = words.filter(w => w.wrongCount > 0);
+  }
+  if (filter === 'mastered') displayWords = displayWords.filter(w => w.mastered);
+  else if (filter === 'learning') displayWords = displayWords.filter(w => !w.mastered);
+  else if (filter === 'wrong') displayWords = displayWords.filter(w => w.wrongCount > 0);
+
+  if (search) {
+    displayWords = displayWords.filter(w =>
+      w.word.includes(search) || (w.chinese || '').includes(search)
+    );
+  }
+
+  if (displayWords.length === 0) {
+    list.innerHTML = `
+      <div class="empty-state">
+        <div class="icon">📭</div>
+        <p>${words.length === 0 ? '还没有单词，点击上方按钮开始添加吧！' : '没有匹配的单词'}</p>
+      </div>`;
+    return;
+  }
+
+  list.innerHTML = displayWords.map((w, i) => `
+    <div class="word-item ${w.wrongCount > 0 ? 'wrong' : ''}">
+      <div class="word-text">${w.word}<span class="word-phonetic">${w.phonetic || ''}</span></div>
+      <div class="word-chinese">${w.chinese || ''}</div>
+      <div class="word-actions">
+        <button class="btn-play" onclick="playWord('${w.word}')" title="发音">🔊</button>
+        <button class="${w.mastered ? 'btn-wrong' : 'btn-mastered'}" onclick="toggleMastered(${words.indexOf(w)})" title="${w.mastered ? '取消掌握' : '标记掌握'}">${w.mastered ? '↩️' : '✓'}</button>
+        <button class="btn-delete" onclick="deleteWord(${words.indexOf(w)})" title="删除">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function updateStats() {
+  document.getElementById('totalCount').textContent = words.length;
+  document.getElementById('masteredCount').textContent = words.filter(w => w.mastered).length;
+  document.getElementById('learningCount').textContent = words.filter(w => !w.mastered).length;
+  document.getElementById('wrongCount').textContent = words.filter(w => w.wrongCount > 0).length;
+}
+
+// ========== 操作 ==========
+function playWord(word) {
+  if ('speechSynthesis' in window) {
+    const utter = new SpeechSynthesisUtterance(word);
+    utter.lang = 'en-US';
+    utter.rate = 0.9;
+    speechSynthesis.speak(utter);
+  }
+}
+
+function toggleMastered(index) {
+  words[index].mastered = !words[index].mastered;
+  saveToCloud();
+  renderList();
+  updateStats();
+}
+
+function deleteWord(index) {
+  if (!confirm(`确定删除单词「${words[index].word}」？`)) return;
+  words.splice(index, 1);
+  saveToCloud();
+  renderList();
+  updateStats();
+}
+
+function confirmClearAll() {
+  if (words.length === 0) return;
+  if (!confirm(`确定清空全部 ${words.length} 个单词吗？此操作不可恢复！`)) return;
+  words = [];
+  saveToCloud();
+  renderList();
+  updateStats();
+  showToast('🗑️ 已清空所有单词');
+}
+
+// ========== 搜索/筛选 ==========
+function filterWords() { renderList(); }
+
+function switchTab(tab, btn) {
+  currentTab = tab;
+  document.querySelectorAll('.tab-bar button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ========== 导入/导出 ==========
+function exportWords() {
+  if (words.length === 0) { showToast('⚠️ 没有单词可导出'); return; }
+  const data = JSON.stringify(words, null, 2);
+  const blob = new Blob([data], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `vocab_${Date.now()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('📤 已导出');
+}
+
+function importWords(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = async () => {
+    try {
+      const data = JSON.parse(reader.result);
+      if (!Array.isArray(data)) throw new Error('格式错误');
+      const before = words.length;
+      for (const w of data) {
+        if (w.word && !words.some(ex => ex.word === w.word)) {
+          words.push({ mastered: false, wrongCount: 0, createdAt: Date.now(), ...w });
+        }
+      }
+      await saveToCloud();
+      renderList();
+      updateStats();
+      showToast(`📥 导入 ${words.length - before} 个新单词`);
+    } catch (e) {
+      showToast('❌ 导入失败：' + e.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ========== 拼写复习 ==========
+let spellingQueue = [];
+let spellingIndex = 0;
+let spellingCorrect = 0;
+
+function startSpellingReview() {
+  const candidates = words.filter(w => !w.mastered);
+  if (candidates.length < 3) { showToast('⚠️ 至少需要有 3 个未掌握的单词'); return; }
+  spellingQueue = [...candidates].sort(() => Math.random() - 0.5).slice(0, 20);
+  spellingIndex = 0;
+  spellingCorrect = 0;
+  document.getElementById('spellingOverlay').classList.add('active');
+  showSpellingWord();
+}
+
+function showSpellingWord() {
+  if (spellingIndex >= spellingQueue.length) {
+    document.getElementById('spellingQuestion').textContent = '🎉 完成！';
+    document.getElementById('spellingPhonetic').textContent = '';
+    document.getElementById('spellingAnswer').style.display = 'none';
+    document.getElementById('spellingResult').innerHTML = `正确率：${spellingCorrect}/${spellingQueue.length}`;
+    document.getElementById('spellingProgress').textContent = '';
+    return;
+  }
+  const w = spellingQueue[spellingIndex];
+  document.getElementById('spellingQuestion').textContent = w.chinese || '？？？';
+  document.getElementById('spellingPhonetic').textContent = w.phonetic || '';
+  const input = document.getElementById('spellingAnswer');
+  input.style.display = 'block';
+  input.value = '';
+  input.focus();
+  document.getElementById('spellingResult').textContent = '';
+  document.getElementById('spellingProgress').textContent = `${spellingIndex + 1}/${spellingQueue.length}`;
+}
+
+function checkSpelling() {
+  const input = document.getElementById('spellingAnswer');
+  const answer = input.value.trim().toLowerCase();
+  const correct = spellingQueue[spellingIndex].word.toLowerCase();
+  const result = document.getElementById('spellingResult');
+  if (answer === correct) {
+    result.textContent = '✅ 正确！';
+    result.style.color = '#2ed573';
+    spellingCorrect++;
+    // 标记掌握
+    const idx = words.findIndex(w => w.word === correct);
+    if (idx >= 0) words[idx].mastered = true;
+  } else {
+    result.textContent = `❌ 正确答案：${correct}`;
+    result.style.color = '#ff4757';
+    const idx = words.findIndex(w => w.word === correct);
+    if (idx >= 0) words[idx].wrongCount++;
+  }
+  saveToCloud();
+  updateStats();
+  setTimeout(() => { spellingIndex++; showSpellingWord(); }, 1500);
+}
+
+function nextSpelling() {
+  spellingIndex++;
+  showSpellingWord();
+}
+
+function closeSpelling() {
+  document.getElementById('spellingOverlay').classList.remove('active');
+  saveToCloud();
+  renderList();
+}
+
+// ========== 听力复习 ==========
+let listeningQueue = [];
+let listeningIndex = 0;
+
+function startListeningReview() {
+  const candidates = words.filter(w => !w.mastered);
+  if (candidates.length < 3) { showToast('⚠️ 至少需要有 3 个未掌握的单词'); return; }
+  listeningQueue = [...candidates].sort(() => Math.random() - 0.5).slice(0, 20);
+  listeningIndex = 0;
+  document.getElementById('listeningOverlay').classList.add('active');
+  showListeningWord();
+}
+
+function showListeningWord() {
+  if (listeningIndex >= listeningQueue.length) {
+    document.getElementById('listeningQuestion').textContent = '🎉 完成！';
+    document.getElementById('listeningResult').textContent = '';
+    document.getElementById('listeningProgress').textContent = '';
+    return;
+  }
+  const w = listeningQueue[listeningIndex];
+  document.getElementById('listeningQuestion').textContent = `第 ${listeningIndex + 1} 题`;
+  document.getElementById('listeningResult').textContent = '';
+  document.getElementById('listeningProgress').textContent = `${listeningIndex + 1}/${listeningQueue.length}`;
+  // 自动播放
+  setTimeout(() => playWord(w.word), 500);
+}
+
+function playListeningWord() {
+  const w = listeningQueue[listeningIndex];
+  if (w) playWord(w.word);
+}
+
+function showListeningAnswer() {
+  const w = listeningQueue[listeningIndex];
+  if (!w) return;
+  document.getElementById('listeningResult').innerHTML = `
+    <strong>${w.word}</strong> ${w.phonetic || ''}<br>
+    <small>${w.chinese || ''}</small><br>
+    <button class="btn btn-mastered" onclick="markListeningCorrect()">✓ 认识</button>
+    <button class="btn btn-wrong" onclick="markListeningWrong()">✗ 不认识</button>
+  `;
+}
+
+function markListeningCorrect() {
+  const w = listeningQueue[listeningIndex];
+  const idx = words.findIndex(x => x.word === w.word);
+  if (idx >= 0) words[idx].mastered = true;
+  saveToCloud();
+  listeningIndex++;
+  showListeningWord();
+}
+
+function markListeningWrong() {
+  const w = listeningQueue[listeningIndex];
+  const idx = words.findIndex(x => x.word === w.word);
+  if (idx >= 0) words[idx].wrongCount++;
+  saveToCloud();
+  listeningIndex++;
+  showListeningWord();
+}
+
+function closeListening() {
+  document.getElementById('listeningOverlay').classList.remove('active');
+  saveToCloud();
+  renderList();
+  updateStats();
+}
+
+// ========== UI 切换 ==========
+function showSingleInput() {
+  toggleInput('singleInput');
+}
+function showBatchInput() {
+  toggleInput('batchInput');
+}
+function showAIInput() {
+  toggleInput('aiInput');
+}
+function toggleInput(id) {
+  ['singleInput', 'batchInput', 'aiInput'].forEach(i => {
+    document.getElementById(i).classList.remove('active');
+  });
+  document.getElementById(id).classList.add('active');
+  if (id === 'singleInput') document.getElementById('singleWord').focus();
+}
+
+// ========== Toast ==========
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ========== 回车快捷添加 ==========
+document.getElementById('singleWord')?.addEventListener('keydown', e => {
+  if (e.key === 'Enter') addSingleWord();
+});
+
+// ========== 分享链接 ==========
+function getShareLink() {
+  const appId = localStorage.getItem(APP_ID_KEY);
+  return `${location.origin}/?app=${appId}`;
+}
+
+// ========== 启动 ==========
+init();
+</script>
+</body>
+</html>

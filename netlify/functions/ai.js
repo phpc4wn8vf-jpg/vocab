@@ -10,9 +10,10 @@ export default async (req) => {
     return new Response(null, { headers });
   }
 
+  // 关键：用 Netlify.env.get 读取环境变量
   const MOONSHOT_KEY = Netlify.env.get('MOONSHOT_API_KEY');
   if (!MOONSHOT_KEY) {
-    return new Response(JSON.stringify({ error: '未配置 MOONSHOT_API_KEY' }), { 
+    return new Response(JSON.stringify({ error: '未配置 MOONSHOT_API_KEY，请在 Netlify 控制台添加' }), { 
       status: 500, headers 
     });
   }
